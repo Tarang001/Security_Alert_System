@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Security Alert Automation System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #050a0f;
+      --surface: #0b1520;
+      --border: #1a2e44;
+      --accent: #00d4ff;
+      --accent2: #00ff9d;
+      --danger: #ff3b3b;
+      --warn: #ffb800;
+      --text: #c8dff0;
+      --muted: #4a6480;
+      --mono: 'Share Tech Mono', monospace;
+      --sans: 'Syne', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* Scanline overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,212,255,0.015) 2px,
+        rgba(0,212,255,0.015) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    header {
+      padding: 2rem 3rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      background: linear-gradient(90deg, rgba(0,212,255,0.05) 0%, transparent 60%);
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      color: var(--accent);
+      box-shadow: 0 0 16px rgba(0,212,255,0.25);
+      flex-shrink: 0;
+    }
+
+    .logo-text h1 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #fff;
+      text-transform: uppercase;
+    }
+
+    .logo-text p {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      margin-top: 2px;
+    }
+
+    .status-pill {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--accent2);
+      letter-spacing: 0.1em;
+    }
+
+    .pulse {
+      width: 8px; height: 8px;
+      background: var(--accent2);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,255,157,0.4); }
+      50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(0,255,157,0); }
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .panel h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .panel h2 span.tag {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      background: rgba(0,212,255,0.1);
+      color: var(--accent);
+      border: 1px solid rgba(0,212,255,0.2);
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.1em;
+    }
+
+    textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      padding: 1rem;
+      resize: vertical;
+      min-height: 100px;
+      outline: none;
+      transition: border-color 0.2s;
+      line-height: 1.6;
+    }
+
+    textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,0.08); }
+    textarea::placeholder { color: var(--muted); }
+
+    .hint {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-top: 0.6rem;
+    }
+
+    .btn {
+      margin-top: 1.2rem;
+      padding: 0.75rem 2rem;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn:hover { background: #33ddff; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,212,255,0.3); }
+    .btn:active { transform: translateY(0); }
+
+    /* Error */
+    .alert-error {
+      background: rgba(255,59,59,0.08);
+      border: 1px solid rgba(255,59,59,0.3);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--danger);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    /* Results table */
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.2rem;
+    }
+
+    .results-count {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .results-count span { color: var(--accent); font-weight: 600; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    thead th {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: left;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(26,46,68,0.5);
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover { background: rgba(0,212,255,0.03); }
+    tbody tr:last-child { border-bottom: none; }
+
+    td {
+      padding: 0.85rem 1rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    td.ip-cell { color: var(--accent); font-weight: 600; }
+    td.score-cell { color: #fff; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .badge.malicious  { background: rgba(255,59,59,0.12);  color: var(--danger); border: 1px solid rgba(255,59,59,0.3); }
+    .badge.suspicious { background: rgba(255,184,0,0.10);  color: var(--warn);   border: 1px solid rgba(255,184,0,0.3); }
+    .badge.safe       { background: rgba(0,255,157,0.08);  color: var(--accent2);border: 1px solid rgba(0,255,157,0.25); }
+
+    .badge::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* API docs section */
+    .code-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: #7dd3fc;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.7;
+    }
+
+    .code-block .comment { color: var(--muted); }
+    .code-block .key     { color: var(--accent); }
+    .code-block .val     { color: var(--accent2); }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      letter-spacing: 0.1em;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-icon">&#9632;</div>
+  <div class="logo-text">
+    <h1>Security Alert System</h1>
+    <p>SOC AUTOMATION TOOL &nbsp;·&nbsp; IP THREAT INTELLIGENCE</p>
+  </div>
+  <div class="status-pill">
+    <div class="pulse"></div>
+    SYSTEM ONLINE
+  </div>
+</header>
+
+<main>
+
+  {% if error %}
+  <div class="alert-error">⚠ &nbsp;{{ error }}</div>
+  {% endif %}
+
+  <!-- Analyze Form -->
+  <div class="section-label">// IP Analysis</div>
+  <div class="panel">
+    <h2>Analyze IP Addresses <span class="tag">UI</span></h2>
+    <form method="POST" action="/analyze-ui">
+      <textarea name="ips" placeholder="8.8.8.8, 1.1.1.1, 9.9.9.9">{% if request.form.ips %}{{ request.form.ips }}{% endif %}</textarea>
+      <div class="hint">Enter one or more IPv4 addresses, comma-separated.</div>
+      <button type="submit" class="btn">▶ &nbsp;Run Analysis</button>
+    </form>
+  </div>
+
+  <!-- Results -->
+  {% if results %}
+  <div class="section-label">// Results</div>
+  <div class="panel">
+    <div class="results-header">
+      <h2>Threat Report</h2>
+      <div class="results-count">Analyzed <span>{{ results|length }}</span> IP(s)</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>IP Address</th>
+          <th>Country</th>
+          <th>ISP / Org</th>
+          <th>Score</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results %}
+        <tr>
+          <td class="ip-cell">{{ r.ip }}</td>
+          <td>{{ r.country }}</td>
+          <td>{{ r.isp }}</td>
+          <td class="score-cell">{{ r.score }}%</td>
+          <td>
+            <span class="badge {{ r.status | lower }}">{{ r.status }}</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <!-- API Docs -->
+  <div class="section-label">// API Reference</div>
+  <div class="panel">
+    <h2>REST Endpoint <span class="tag">JSON</span></h2>
+    <div class="code-block"><span class="comment"># POST /analyze</span>
+<span class="comment"># Content-Type: application/json</span>
+
+curl -X POST http://localhost:5000/analyze \
+  -H "Content-Type: application/json" \
+  -d '<span class="val">{"ips": ["8.8.8.8", "1.1.1.1"]}</span>'
+
+<span class="comment"># Response</span>
+{
+  <span class="key">"results"</span>: [
+    {
+      <span class="key">"ip"</span>:      <span class="val">"8.8.8.8"</span>,
+      <span class="key">"country"</span>: <span class="val">"US"</span>,
+      <span class="key">"isp"</span>:     <span class="val">"AS15169 Google LLC"</span>,
+      <span class="key">"score"</span>:   <span class="val">0</span>,
+      <span class="key">"status"</span>:  <span class="val">"Safe"</span>
+    }
+  ]
+}</div>
+  </div>
+
+</main>
+
+<footer>SECURITY ALERT AUTOMATION SYSTEM &nbsp;·&nbsp; BUILT WITH FLASK &nbsp;·&nbsp; VIRUSTOTAL + IPINFO</footer>
+
+</body>
+</html>
