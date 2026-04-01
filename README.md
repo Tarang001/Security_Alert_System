@@ -115,19 +115,6 @@ curl -X POST http://localhost:5000/analyze \
 
 ---
 
-## Deployment on Render
-
-1. Push code to GitHub
-2. Go to https://render.com → New Web Service
-3. Connect your repo
-4. Set:
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `gunicorn app:app`
-5. Add environment variables: `VIRUSTOTAL_API_KEY`, `IPINFO_API_KEY`
-6. Deploy!
-
----
-
 ## Tech Stack
 
 - Python 3 + Flask
